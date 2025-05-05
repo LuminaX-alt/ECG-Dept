@@ -1,0 +1,100 @@
+!pip install wfdb wget
+#@title Represent a 12 lead ECG as graphs (4 seconds)
+
+ECGdf_short = ECGdf[0:2000]
+plt.figure(figsize=(26, 16))
+for i, col in enumerate(ECGdf_short.columns[0:]):
+    plt.subplot(3, 4, i + 1)
+    plt.plot(ECGdf_short[col])
+    plt.title(col, color = "white")
+AF = Atrial Fibrillation
+I-AVB = 1 degree Atrioventricular Block
+LBBB = Left Bundle Branch Block
+Normal = Normal ECG
+PAC = Premature Atrial Contractions
+PVC = Premature Ventricular Contractions
+RBBB = Right Bundle Branch Block
+STD = ST-segment Depression
+STE = ST-segment Elevation
+#@title Encode diagnosis
+from sklearn.preprocessing import LabelEncoder
+encode_df = LabelEncoder()
+encode_df.fit(y)
+encoded_y = encode_df.transform(y)
+print("Total number of unique combinations of diagnosis: {}".format(len(np.unique(encoded_y))))
+def create_model(learn_rate = 0.01, momentum = 0.8, filters = 20, strides = 5, kernel_size = 5, lstm_units = 5): 
+  model = Sequential()
+  model.add(Conv1D(filters=filters, strides= strides, kernel_size=kernel_size, activation='relu',input_shape=(1000,12)))
+  model.add(LSTM(units = lstm_units))
+  model.add(Dense(36, activation='softmax'))
+  optimizer = SGD(lr=learn_rate, momentum = momentum)
+  model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy','categorical_accuracy',"categorical_crossentropy"])
+  model.summary()
+  return model
+  #@title
+from sklearn.model_selection import GridSearchCV
+filters = [5, 10, 20]
+param_grid = dict(filters=filters)
+grid = GridSearchCV(estimator=model, param_grid=param_grid, cv=skf.split(X_opt, y_opt_skf))
+grid_result = grid.fit(X_opt, y_opt)
+#@title Create model
+model = create_model()
+#@title Plot accuracy during training
+plt.plot(history.history['accuracy'])
+plt.show()
+plt.plot(history.history['loss'])
+!pip install lime
+probability_score[0]
+#@title Plot Confusion matrix for all classes
+from sklearn.metrics import multilabel_confusion_matrix
+mcm = multilabel_confusion_matrix(y_test,optimized_binary)
+plt.figure(figsize=(26, 40))
+for i in range(mcm.shape[0]):
+    plt.subplot(8, 5, i + 1)
+    plt.subplots_adjust(hspace=0.5)
+    sns.heatmap(mcm[i], annot=True, fmt='g', yticklabels=["False","True"], xticklabels=["False","True"])
+    plt.title(encode_df.classes_[i], color = "white")
+    plt.tick_params(axis="both", colors = "white")
+    plt.xlabel("Y True", color = "white")
+    plt.ylabel("Y Predicted", color = "white")
+  import lime
+from lime import lime_tabular
+explainer2 = lime_tabular.RecurrentTabularExplainer(X[:10], training_labels=encoded_y[:10], feature_names=["Lead-I","Lead-II", "Lead-III","aVR","aVL","aVF","V1","V2","V3","V4","V5","V6"],
+                                                   discretize_continuous=True,
+                                                    class_names=encode_df.classes_,
+                                                   discretizer='decile')
+exp = explainer2.explain_instance(X[1], model.predict, num_features=8, labels=(27,))
+exp.show_in_notebook()
+load_challenge_data("./Training_WFDB/A0001.mat")
+#@title
+o=[]
+for filen in sorted(os.listdir("./Training_WFDB/")):
+    if filen.endswith(".mat"):
+        data, header_data = load_challenge_data("./Training_WFDB/"+filen)
+        o.append(header_data)
+      new_list =[]new_df['Age']=pd.to_numeric(new_df['Age'], errors='coerce', downcast='integer')
+for i in range(len(o)):
+  list_obj1 = o[i][13:]
+  list_obj2 = o[i][0][0:5]
+  list_obj1.append(list_obj2)
+  new_list.append(list_obj1)
+new_list[0]
+new_df = pd.DataFrame(new_list, columns = ["Age", "Sex", "Diagnosis","Rx", "Hx", "Sx", "Patient nr"])
+new_df = new_df.set_index('Patient nr')
+new_df['Age']=new_df['Age'].str.lstrip("#Age:").str.rstrip("\n")
+new_df['Sex']=new_df['Sex'].str.lstrip("#Sex:").str.rstrip("\n")
+new_df['Diagnosis']=new_df['Diagnosis'].str.lstrip("#Dx:").str.rstrip("\n")
+new_df = new_df.iloc[:,0:3]
+new_df.head()
+new_df.dtypes
+new_df.dtypes
+np.where(new_df['Age'].isna())
+new_df.Age.plot.hist(figsize=(20,10))
+new_df['Age'].hist(by=new_df['Diagnosis'], figsize=(24,16), sharex = True, bins = 5)
+plt.show()
+new_df['Age'].hist(by=new_df['Sex'], figsize=(24,16), sharex = True, bins = 5)
+plt.show()
+new_df['Sex'].hist(by=new_df['Diagnosis'], figsize=(24,16), sharex = True)
+plt.show()
+
+
